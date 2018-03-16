@@ -20,11 +20,12 @@ var cursors;
 var player;
 
 var dots = [];
-
+var backgrounds = [];
 var game = new Phaser.Game(config);
 
 function preload ()
 {
+    this.load.spritesheet('bg', 'assets/images/checker.png', { frameWidth: 512, frameHeight: 512/12 });
     this.load.image('person', 'assets/images/acryl-bladerunner.png');
 }
 
@@ -48,6 +49,14 @@ function create ()
     for(var i=0; i<10; i++)
     {
         dots.push(createDot.call(this));
+    }
+
+    for(i=0; i<12; i++)
+    {
+        var sprite = this.add.image(window.innerWidth/2, 0, 'bg', i);
+        sprite.setOrigin(0.5, 0);
+
+        backgrounds.push(sprite);
     }
 
     /*graphics = this.add.graphics();
@@ -130,6 +139,32 @@ function update (time, delta)
         dot.graphics.depth = dot.graphics.y;
 
         dot.graphics.setScale(1 + (dot.graphics.y-window.innerWidth/2)/window.innerHeight); // TODO interesting
+
+    });
+
+    backgrounds.forEach(function (sprites, i) {
+
+        var sprite = sprites;
+
+        if(i === 0)
+        {
+            sprite.x = window.innerWidth/2;
+            sprite.y = 0;
+
+            sprite.setScale(window.innerWidth/512);
+
+            console.log(i + ' ' + sprite.x + ' ' + sprite.y + ' ' + sprite.scaleX);
+
+            return;
+        }
+
+        var prevSprite = backgrounds[i-1];
+
+        sprite.x = window.innerWidth/2;
+        sprite.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
+        sprite.setScale(prevSprite.scaleX * 1.1);
+
+        console.log(i + ' ' + sprite.x + ' ' + sprite.y + ' ' + sprite.scaleX);
 
     })
 
