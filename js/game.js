@@ -165,20 +165,16 @@ function update (time, delta)
         {
             newScale = window.innerWidth/BG.WIDTH;
 
-            sprite1.setScale(newScale);
-            sprite2.setScale(newScale);
-
-            sprite1.x = window.innerWidth/2 - player.x*sprite1.scaleX/2;
-            sprite2.x = sprite1.x + sprite1.width*sprite1.scaleX;
-
-            sprite1.y = sprite2.y = 0;
-
-            return;
+            sprite1.y = 0;
         }
+        else
+        {
+            var prevSprite = backgrounds[i-1][0];
 
-        var prevSprite = backgrounds[i-1][0];
+            newScale = prevSprite.scaleX * 1.1;
 
-        newScale = prevSprite.scaleX * 1.1;
+            sprite1.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
+        }
 
         sprite1.setScale(newScale);
         sprite2.setScale(newScale);
@@ -186,7 +182,7 @@ function update (time, delta)
         sprite1.x = window.innerWidth/2 - player.x*sprite1.scaleX/2;
         sprite2.x = sprite1.x + sprite1.width*sprite1.scaleX;
 
-        sprite1.y = sprite2.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
+        sprite2.y = sprite1.y;
 
     })
 
