@@ -93,22 +93,25 @@ function update (time, delta)
 
     console.log(player.v);
 
-    if (cursors.up.isDown)
-    {
-
-    }
-    else
-    {
-
-    }
-
     if (cursors.down.isDown)
     {
-
+        player.v.y += PLAYER_ACC;
+        player.v.y = Math.min(player.v.y, PLAYER_V_CAP);
+    }
+    else if (player.v.y > 0)
+    {
+        player.v.y -= 1.5*PLAYER_ACC;
+        player.v.y = Math.max(0, player.v.y);
+    }
+    else if (cursors.up.isDown)
+    {
+        player.v.y -= PLAYER_ACC;
+        player.v.y = Math.max(-PLAYER_V_CAP, player.v.y);
     }
     else
     {
-
+        player.v.y += 1.5*PLAYER_ACC;
+        player.v.y = Math.min(player.v.y, 0);
     }
 
     // TODO update player coordiantes
@@ -121,6 +124,7 @@ function update (time, delta)
     dots.forEach(function (dot) {
 
         dot.dot.x = dot.x - player.x;
+        dot.dot.y = dot.y - player.y;
 
     })
 
