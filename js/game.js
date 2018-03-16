@@ -15,6 +15,12 @@ const PLAYER_SIZE = 20;
 const PLAYER_ACC = 0.1; //TODO adjust
 const PLAYER_V_CAP = 5;
 
+const BG = {
+    WIDTH: 512,
+    HEIGHT: 512,
+    ROWS: 12
+};
+
 var cursors;
 
 var player;
@@ -25,7 +31,7 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.spritesheet('bg', 'assets/images/checker.png', { frameWidth: 512, frameHeight: 512/12 });
+    this.load.spritesheet('bg', 'assets/images/checker.png', { frameWidth: BG.WIDTH, frameHeight: BG.HEIGHT/BG.ROWS });
     this.load.image('person', 'assets/images/acryl-bladerunner.png');
 }
 
@@ -148,23 +154,20 @@ function update (time, delta)
 
         if(i === 0)
         {
-            sprite.x = window.innerWidth/2;
+            sprite.setScale(window.innerWidth/BG.WIDTH);
+
+            sprite.x = window.innerWidth/2 - player.x*sprite.scaleX;
             sprite.y = 0;
-
-            sprite.setScale(window.innerWidth/512);
-
-            console.log(i + ' ' + sprite.x + ' ' + sprite.y + ' ' + sprite.scaleX);
 
             return;
         }
 
         var prevSprite = backgrounds[i-1];
 
-        sprite.x = window.innerWidth/2;
-        sprite.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
         sprite.setScale(prevSprite.scaleX * 1.1);
 
-        console.log(i + ' ' + sprite.x + ' ' + sprite.y + ' ' + sprite.scaleX);
+        sprite.x = window.innerWidth/2 - player.x*sprite.scaleX;
+        sprite.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
 
     })
 
