@@ -18,7 +18,7 @@ const PLAYER_V_CAP = 5;
 const BG = {
     WIDTH: 512,
     HEIGHT: 512,
-    ROWS: 27
+    ROWS: 37
 };
 
 var cursors;
@@ -59,10 +59,16 @@ function create ()
 
     for(i=0; i<BG.ROWS; i++)
     {
-        var sprite = this.add.image(window.innerWidth/2, 0, 'bg', i);
-        sprite.setOrigin(0.5, 0);
+        var sprite1 = this.add.image(window.innerWidth/2, 0, 'bg', i);
+        sprite1.setOrigin(0.5, 0);
 
-        backgrounds.push(sprite);
+        var sprite2 = this.add.image(window.innerWidth/2 + sprite1.width*sprite1.scaleX, 0, 'bg', i);
+        sprite2.setOrigin(0.5, 0);
+
+        backgrounds.push([
+            sprite1,
+            sprite2
+        ]);
     }
 
     /*graphics = this.add.graphics();
@@ -150,24 +156,37 @@ function update (time, delta)
 
     backgrounds.forEach(function (sprites, i) {
 
-        var sprite = sprites;
+        var sprite1 = sprites[0];
+        var sprite2 = sprites[1];
+
+        var newScale;
 
         if(i === 0)
         {
-            sprite.setScale(window.innerWidth/BG.WIDTH);
+            newScale = window.innerWidth/BG.WIDTH;
 
-            sprite.x = window.innerWidth/2 - player.x*sprite.scaleX/2;
-            sprite.y = 0;
+            sprite1.setScale(newScale);
+            sprite2.setScale(newScale);
+
+            sprite1.x = window.innerWidth/2 - player.x*sprite1.scaleX/2;
+            sprite2.x = sprite1.x + sprite1.width*sprite1.scaleX;
+
+            sprite1.y = sprite2.y = 0;
 
             return;
         }
 
-        var prevSprite = backgrounds[i-1];
+        var prevSprite = backgrounds[i-1][0];
 
-        sprite.setScale(prevSprite.scaleX * 1.1);
+        newScale = prevSprite.scaleX * 1.1;
 
-        sprite.x = window.innerWidth/2 - player.x*sprite.scaleX/2;
-        sprite.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
+        sprite1.setScale(newScale);
+        sprite2.setScale(newScale);
+
+        sprite1.x = window.innerWidth/2 - player.x*sprite1.scaleX/2;
+        sprite2.x = sprite1.x + sprite1.width*sprite1.scaleX;
+
+        sprite1.y = sprite2.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
 
     })
 
