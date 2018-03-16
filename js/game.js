@@ -43,6 +43,8 @@ function create ()
         size: PLAYER_SIZE
     };
 
+    player.graphics.depth = window.innerHeight/3*2;
+
     for(var i=0; i<10; i++)
     {
         dots.push(createDot.call(this));
@@ -125,6 +127,7 @@ function update (time, delta)
 
         dot.graphics.x = (dot.x - player.x) * factor;
         dot.graphics.y = (dot.y - player.y) * factor;
+        dot.graphics.depth = dot.graphics.y;
 
         dot.graphics.setScale(1 + (dot.graphics.y-window.innerWidth/2)/window.innerHeight); // TODO interesting
 
@@ -150,12 +153,26 @@ function createDot () {
         x: Math.random() * 800,
         y: Math.random() * 600,
         graphics: this.add.graphics(),
-        person: this.add.image(0, 0, 'person')
+        person: this.add.image(0, 0, 'person'),
+
+        visit: function () {
+
+        }
     };
+
+    dot.graphics.fillStyle(selectColor(Math.floor(Math.random()*111), 111), 1.0);
 
     dot.graphics.fillCircle(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE);
 
     dot.person.visible = false;
 
     return dot;
+}
+
+function selectColor (colorNum, colors)
+{
+    if (colors < 1) colors = 1;
+    //return 'hsl(' + (colorNum * (360 / colors) % 360) + ',100%,50%)';
+    var color = Phaser.Display.Color.HSVToRGB(colorNum/colors, 1, 0.5);
+    return (color.r << 16) + (color.g << 8) + color.b;
 }
