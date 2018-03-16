@@ -18,7 +18,7 @@ const PLAYER_V_CAP = 5;
 const BG = {
     WIDTH: 512,
     HEIGHT: 512,
-    ROWS: 12
+    ROWS: 27
 };
 
 var cursors;
@@ -57,7 +57,7 @@ function create ()
         dots.push(createDot.call(this));
     }
 
-    for(i=0; i<12; i++)
+    for(i=0; i<BG.ROWS; i++)
     {
         var sprite = this.add.image(window.innerWidth/2, 0, 'bg', i);
         sprite.setOrigin(0.5, 0);
@@ -156,7 +156,7 @@ function update (time, delta)
         {
             sprite.setScale(window.innerWidth/BG.WIDTH);
 
-            sprite.x = window.innerWidth/2 - player.x*sprite.scaleX;
+            sprite.x = window.innerWidth/2 - player.x*sprite.scaleX/2;
             sprite.y = 0;
 
             return;
@@ -166,7 +166,7 @@ function update (time, delta)
 
         sprite.setScale(prevSprite.scaleX * 1.1);
 
-        sprite.x = window.innerWidth/2 - player.x*sprite.scaleX;
+        sprite.x = window.innerWidth/2 - player.x*sprite.scaleX/2;
         sprite.y = prevSprite.y + prevSprite.height*prevSprite.scaleY;
 
     })
