@@ -179,8 +179,16 @@ function update (time, delta)
         sprite1.setScale(newScale);
         sprite2.setScale(newScale);
 
-        sprite1.x = window.innerWidth/2 - player.x*sprite1.scaleX/2;
-        sprite2.x = sprite1.x + sprite1.width*sprite1.scaleX;
+        sprite1.x = window.innerWidth/2 - (player.x*sprite1.scaleX/2)%(sprite1.width * sprite1.scaleX);
+
+        if(sprite1.x < window.innerWidth/2)
+        {
+            sprite2.x = sprite1.x + sprite1.width*sprite1.scaleX;
+        }
+        else
+        {
+            sprite2.x = sprite1.x - sprite1.width*sprite1.scaleX;
+        }
 
         sprite2.y = sprite1.y;
 
