@@ -1,6 +1,6 @@
 var config = {
-    width: 800,
-    height: 600,
+    width: window.innerWidth,
+    height: window.innerHeight,
     backgroundColor: '#fff',
     type: Phaser.WEBGL,
     parent: 'phaser-example',
@@ -66,7 +66,7 @@ function update (time, delta)
     player.size -= delta / 400;
 
     player.graphics.clear();
-    player.graphics.fillCircle(400, 400, player.size);
+    player.graphics.fillCircle(window.innerWidth/2, window.innerHeight/3*2, player.size);
 
     // Controls
 
@@ -90,8 +90,6 @@ function update (time, delta)
         player.v.x -= 1.5*PLAYER_ACC;
         player.v.x = Math.max(0, player.v.x);
     }
-
-    console.log(player.v);
 
     if (cursors.down.isDown)
     {
@@ -123,8 +121,12 @@ function update (time, delta)
 
     dots.forEach(function (dot) {
 
-        dot.dot.x = dot.x - player.x;
-        dot.dot.y = dot.y - player.y;
+        var factor = 1 + ((dot.y - player.y)+window.innerHeight/3*2)/window.innerHeight;
+
+        dot.graphics.x = (dot.x - player.x) * factor;
+        dot.graphics.y = (dot.y - player.y) * factor;
+
+        dot.graphics.setScale(1 + (dot.graphics.y-window.innerWidth/2)/window.innerHeight); // TODO interesting
 
     })
 
@@ -147,11 +149,11 @@ function createDot () {
     var dot = {
         x: Math.random() * 800,
         y: Math.random() * 600,
-        dot: this.add.graphics(),
+        graphics: this.add.graphics(),
         person: this.add.image(0, 0, 'person')
     };
 
-    dot.dot.fillCircle(dot.x, dot.y, PLAYER_SIZE/2);
+    dot.graphics.fillCircle(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE);
 
     dot.person.visible = false;
 
