@@ -129,10 +129,7 @@ function create ()
         {
             console.log('input detected');
 
-            for(var i=0; i<10; i++)
-            {
-                dots.push(createDot.call(this));
-            }
+            addDots.call(this);
 
             this.tweens.add({
                 targets: title,
@@ -187,9 +184,22 @@ function update (time, delta)
         playing = false;
         player.size = 0;
 
-        title.setText("Thank you!");
-
         // TODO add menu transition
+
+        // background
+
+        this.tweens.add({
+            targets: background,
+            duration: 6000,
+            x: 0,
+            y: 0,
+            //delay: Math.random() * 2,
+            //ease: 'Sine.easeInOut',
+            repeat: 0,
+            yoyo: false
+        });
+
+        // Text and dots
 
         this.tweens.add({
             targets: title,
@@ -198,7 +208,11 @@ function update (time, delta)
             //delay: Math.random() * 2,
             //ease: 'Sine.easeInOut',
             repeat: 0,
-            yoyo: false
+            yoyo: false,
+            onStart: function ()
+            {
+                title.setText("Thank you!");
+            }
         });
         this.tweens.add({
             targets: title,
@@ -208,7 +222,11 @@ function update (time, delta)
             //ease: 'Sine.easeInOut',
             repeat: 0,
             yoyo: false,
-            delay: 4000
+            delay: 4000,
+            onComplete: function ()
+            {
+                title.setText('Portrayal');
+            }
         });
         this.tweens.add({
             targets: title,
@@ -219,11 +237,22 @@ function update (time, delta)
             repeat: 0,
             yoyo: false,
             delay: 6000,
-            onStart: function () {
-                title.setText('Portrayal');
+            onStart: function ()
+            {
+                for(var i = 0; i<dots.length; i++)
+                {
+                    dots[i].graphics.destroy();
+                    dots[i].person.destroy();
+                }
+
+                dots.length = 0;
             },
-            onComplete: function () {
+            onComplete: function ()
+            {
                 player.size = PLAYER_SIZE;
+                player.x = 0;
+                player.y = 0;
+
                 this.input.keyboard.on('keydown', function (event)
                 {
                     if (event.code === 'ArrowUp' || event.code === 'ArrowDown' ||
@@ -231,10 +260,7 @@ function update (time, delta)
                     {
                         console.log('input detected');
 
-                        for(var i=0; i<10; i++)
-                        {
-                            dots.push(createDot.call(this));
-                        }
+                        addDots.call(this);
 
                         this.tweens.add({
                             targets: title,
@@ -253,8 +279,6 @@ function update (time, delta)
                 }, this);
             }.bind(this)
         });
-
-        return;
     }
 
     player.graphics.clear();
@@ -432,13 +456,21 @@ function update (time, delta)
     }*/
 }
 
-function createDot () {
+function addDots ()
+{
+    for(var i=0; i<PORTRAITS_NUM; i++)
+    {
+        dots.push(createDot.call(this, i));
+    }
+}
+
+function createDot (i) {
 
     var dot = {
-        x: Math.random() * 800,
-        y: Math.random() * 600,
+        x: Math.random() * 80 * PORTRAITS_NUM,
+        y: Math.random() * 60 * PORTRAITS_NUM,
         graphics: this.add.graphics(),
-        person: this.add.image(0, 0, 'portrait'+(1+Math.floor(Math.random()*PORTRAITS_NUM))),
+        person: this.add.image(0, 0, 'portrait'+i),
         //color: selectColor(Math.floor(Math.random()*113), 113),
         personTween: null,
         color: getRandomColor(),
