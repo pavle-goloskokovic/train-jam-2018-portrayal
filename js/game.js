@@ -46,10 +46,20 @@ function preload ()
     {*/
     this.load.image('portrait' + 1, 'assets/images/ROSA/P'+'1'+'.png');
     //}
+
+    this.load.audio('music', [
+        'assets/audio/Portrait Odyssey_2.ogg',
+        'assets/audio/tech/Portrait Odyssey_2.mp3'
+    ]);
+
 }
 
 function create ()
 {
+    /*this.sound.play('music', {
+        loop: true
+    });*/
+
     cursors = this.input.keyboard.createCursorKeys();
 
     background = this.add.image(WIDTH/2, HEIGHT/2, 'bg');
@@ -182,7 +192,7 @@ function update (time, delta)
         dot.person.x = dot.graphics.x;
         dot.person.y = dot.graphics.y - HEIGHT/8;
 
-        dot.person.setScale(400/1500*dot.graphics.scaleX);
+        dot.person.setScale(320/dot.person.width*dot.graphics.scaleX);
 
         dot.person.mask.geometryMask.x = dot.person.x;
         dot.person.mask.geometryMask.y = dot.person.y - 170;
@@ -376,14 +386,7 @@ var colors = [
     0xe87295,
     0xf55b7a,
     0xe3449b,
-    0x42bd9e,
-    0x2dd5b9,
-    0x2dd5b9,
-    0x76e5e9,
-    0x16cde9,
     0x41adb1,
-    0x40b7cf,
-    0x33b3e2,
     0x345dcd,
     0x5896cd,
     0x413cd3,
@@ -396,7 +399,25 @@ var colors = [
     0xb944dc,
     0xe345d1,
     0xbf1fdb,
-    0xaf0ecb
+    0xaf0ecb,
+    0xd7786b,
+    0xc96e39,
+    0xc73664,
+    0xd04d68,
+    0x488fa3,
+    0x2983aa,
+    0x3f79c0,
+    0x2878ae,
+    0x554fcd,
+    0x7064b7,
+    0x5e3dba,
+    0x8a53ce,
+    0xbf49a7,
+    0xce5991,
+    0xb740bb,
+    0xc92788,
+    0xbc2ab2,
+    0x9741d1
 ];
 
 function getRandomColor()
