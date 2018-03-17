@@ -18,7 +18,7 @@ const PLAYER_SIZE = 20;
 const PLAYER_ACC = 0.05; //TODO adjust
 const PLAYER_V_CAP = 2;
 
-const PORTRAITS_NUM = 8; // 88 TODO revert
+const PORTRAITS_NUM = 88;
 
 /*const BG = {
     WIDTH: 512,
@@ -64,9 +64,9 @@ function preload ()
     this.load.image('bg', 'assets/images/bg.png');
     //this.load.image('person', 'assets/images/acryl-bladerunner.png');
 
-    for(var i=1; i<=PORTRAITS_NUM; i++)
+    for(var i=0; i<PORTRAITS_NUM; i++)
     {
-        this.load.image('portrait' + i, 'assets/images/Portraits/P'+i+'.png');
+        this.load.image('portrait' + i, 'assets/images/Portraits/P'+(i+1)+'.png');
     }
 
     this.load.audio('music', [
@@ -78,9 +78,9 @@ function preload ()
 
 function create ()
 {
-    /*this.sound.play('music', {
+    this.sound.play('music', {
         loop: true
-    });*/
+    });
 
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -182,7 +182,8 @@ function update (time, delta)
     if(playing && player.size <= 0)
     {
         playing = false;
-        player.size = 0;
+
+        player.graphics.visible = false;
 
         // TODO add menu transition
 
@@ -249,6 +250,8 @@ function update (time, delta)
             },
             onComplete: function ()
             {
+                player.graphics.visible = true;
+
                 player.size = PLAYER_SIZE;
                 player.x = 0;
                 player.y = 0;
@@ -276,13 +279,42 @@ function update (time, delta)
 
                         playing = true;
                     }
+
                 }, this);
+
             }.bind(this)
         });
     }
 
     player.graphics.clear();
     player.graphics.fillCircle(WIDTH/2, HEIGHT/3*2, player.size);
+
+    if(!playing)
+    {
+        player.graphics.fillTriangle(
+            WIDTH/2 - 80, HEIGHT/3*2,
+            WIDTH/2 - 50, HEIGHT/3*2 - 30,
+            WIDTH/2 - 50, HEIGHT/3*2 + 30
+        );
+
+        player.graphics.fillTriangle(
+            WIDTH/2 + 80, HEIGHT/3*2,
+            WIDTH/2 + 50, HEIGHT/3*2 - 30,
+            WIDTH/2 + 50, HEIGHT/3*2 + 30
+        );
+
+        player.graphics.fillTriangle(
+            WIDTH/2, HEIGHT/3*2 - 80,
+            WIDTH/2 - 30, HEIGHT/3*2 - 50,
+            WIDTH/2 + 30, HEIGHT/3*2 - 50
+        );
+
+        player.graphics.fillTriangle(
+            WIDTH/2, HEIGHT/3*2 + 80,
+            WIDTH/2 - 30, HEIGHT/3*2 + 50,
+            WIDTH/2 + 30, HEIGHT/3*2 + 50
+        );
+    }
 
     // Controls
 
@@ -467,8 +499,8 @@ function addDots ()
 function createDot (i) {
 
     var dot = {
-        x: Math.random() * 80 * PORTRAITS_NUM,
-        y: Math.random() * 60 * PORTRAITS_NUM,
+        x: Math.random() * 1700,
+        y: Math.random() * 1700,
         graphics: this.add.graphics(),
         person: this.add.image(0, 0, 'portrait'+i),
         //color: selectColor(Math.floor(Math.random()*113), 113),
@@ -534,8 +566,14 @@ function visitDot (dot)
         yoyo: false
     });
 
-    player.size += 5;
-
+    if(player.size < PLAYER_SIZE*1.5)
+    {
+        player.size *= 1.15;
+    }
+    else
+    {
+        player.size += 1;
+    }
 }
 
 var colors = [
