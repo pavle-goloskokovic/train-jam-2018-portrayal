@@ -1,6 +1,9 @@
+const WIDTH = 800;
+const HEIGHT = 600;
+
 var config = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: WIDTH,
+    height: HEIGHT,
     backgroundColor: '#fff',
     type: Phaser.WEBGL,
     parent: 'phaser-example',
@@ -12,8 +15,10 @@ var config = {
 };
 
 const PLAYER_SIZE = 20;
-const PLAYER_ACC = 0.1; //TODO adjust
-const PLAYER_V_CAP = 5;
+const PLAYER_ACC = 0.05; //TODO adjust
+const PLAYER_V_CAP = 2;
+
+const PORTRAITS_NUM = 47;
 
 /*const BG = {
     WIDTH: 512,
@@ -35,12 +40,21 @@ function preload ()
 {
     //this.load.spritesheet('bg', 'assets/images/checker.png', { frameWidth: BG.WIDTH, frameHeight: BG.HEIGHT/BG.ROWS });
     this.load.image('bg', 'assets/images/bg.png');
-    this.load.image('person', 'assets/images/acryl-bladerunner.png');
+    //this.load.image('person', 'assets/images/acryl-bladerunner.png');
+
+    /*for(var i=1; i<=PORTRAITS_NUM; i++)
+    {*/
+    this.load.image('portrait' + 1, 'assets/images/ROSA/P'+'1'+'.png');
+    //}
 }
 
 function create ()
 {
     cursors = this.input.keyboard.createCursorKeys();
+
+    background = this.add.image(WIDTH/2, HEIGHT/2, 'bg');
+    background.setOrigin(0.5);
+    background.setScale(3);
 
     player = {
         x: 0,
@@ -53,23 +67,19 @@ function create ()
         size: PLAYER_SIZE
     };
 
-    player.graphics.depth = window.innerHeight/3*2 + PLAYER_SIZE;
+    player.graphics.depth = HEIGHT/3*2 + PLAYER_SIZE;
 
     for(var i=0; i<10; i++)
     {
         dots.push(createDot.call(this));
     }
 
-    background = this.add.image(window.innerWidth/2, window.innerHeight/2, 'bg');
-    background.setOrigin(0.5);
-    background.setScale(3);
-
     /*for(i=0; i<BG.ROWS; i++)
     {
-        var sprite1 = this.add.image(window.innerWidth/2, 0, 'bg', 1);
+        var sprite1 = this.add.image(WIDTH/2, 0, 'bg', 1);
         sprite1.setOrigin(0.5, 0);
 
-        var sprite2 = this.add.image(window.innerWidth/2 + sprite1.width*sprite1.scaleX, 0, 'bg', 1);
+        var sprite2 = this.add.image(WIDTH/2 + sprite1.width*sprite1.scaleX, 0, 'bg', 1);
         sprite2.setOrigin(0.5, 0);
 
         backgrounds.push([
@@ -83,8 +93,8 @@ function create ()
     for (var i = 0; i < 2000; i++)
     {
         balls.push({
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * WIDTH,
+            y: Math.random() * HEIGHT,
             v: 1,
             a: Math.random() * 2 * Math.PI,
         });
@@ -93,7 +103,7 @@ function create ()
 
 function update (time, delta)
 {
-    !activeDot && (player.size -= delta / 400);
+    !activeDot && (player.size -= delta / 600);
 
     if(player.size <= 0)
     {
@@ -102,7 +112,7 @@ function update (time, delta)
     }
 
     player.graphics.clear();
-    player.graphics.fillCircle(window.innerWidth/2, window.innerHeight/3*2, player.size);
+    player.graphics.fillCircle(WIDTH/2, HEIGHT/3*2, player.size);
 
     // Controls
 
@@ -148,16 +158,12 @@ function update (time, delta)
         player.v.y = Math.min(player.v.y, 0);
     }
 
-    // TODO update player coordiantes
-
     player.x += player.v.x;
     player.y += player.v.y;
 
-    // TODO update dots coordinates
-
     dots.forEach(function (dot) {
 
-        var factor = 1 + ((dot.y - player.y)+window.innerHeight/3*2)/window.innerHeight;
+        var factor = 1 + ((dot.y - player.y)+HEIGHT/3*2)/HEIGHT;
 
         dot.graphics.clear();
 
@@ -171,9 +177,18 @@ function update (time, delta)
         dot.graphics.y = (dot.y - player.y) * factor;
         dot.graphics.depth = dot.graphics.y;
 
-        dot.graphics.setScale(1 + (dot.graphics.y-window.innerWidth/2)/window.innerHeight); // TODO interesting
+        dot.graphics.setScale(1 + (dot.graphics.y-WIDTH/2)/HEIGHT); // TODO interesting
 
-    });
+        dot.person.x = dot.graphics.x;
+        dot.person.y = dot.graphics.y - HEIGHT/8;
+
+        dot.person.setScale(400/1500*dot.graphics.scaleX);
+
+        dot.person.mask.geometryMask.x = dot.person.x;
+        dot.person.mask.geometryMask.y = dot.person.y - 170;
+        dot.person.mask.geometryMask.setScale(dot.graphics.scaleX);
+
+    }.bind(this));
 
     background.x -= player.v.x/3;
     background.y -= player.v.y/3;
@@ -181,7 +196,7 @@ function update (time, delta)
     if(activeDot)
     {
         if (Phaser.Math.Distance.Between(
-                window.innerWidth/2, window.innerHeight/3*2,
+                WIDTH/2, HEIGHT/3*2,
                 activeDot.graphics.x, activeDot.graphics.y
             ) > PLAYER_SIZE*1.5)
         {
@@ -196,16 +211,34 @@ function update (time, delta)
             var dot = dots[i];
 
             if (!dot.visited && Phaser.Math.Distance.Between(
-                    window.innerWidth/2, window.innerHeight/3*2,
+                    WIDTH/2, HEIGHT/3*2,
                     dot.graphics.x, dot.graphics.y
                 ) < PLAYER_SIZE*1.5)
             {
                 activeDot = dot;
                 // TODO show popup
+
+                dot.person.visible = true;
+                dot.person.alpha = 0;
+
+                dot.personTween = this.tweens.add({
+                    targets: dot.person,
+                    duration: 1000,
+                    alpha: 1,
+                    //delay: Math.random() * 2,
+                    //ease: 'Sine.easeInOut',
+                    repeat: 0,
+                    yoyo: false
+                });
+
                 break;
             }
         }
     }
+
+    // TODO trail
+
+    // TODO add snow
 
     /*backgrounds.forEach(function (sprites, i) {
 
@@ -216,7 +249,7 @@ function update (time, delta)
 
         if(i === 0)
         {
-            newScale = window.innerWidth/BG.WIDTH;
+            newScale = WIDTH/BG.WIDTH;
 
             sprite1.y = 0;
         }
@@ -232,9 +265,9 @@ function update (time, delta)
         sprite1.setScale(newScale);
         sprite2.setScale(newScale);
 
-        sprite1.x = window.innerWidth/2 - (player.x*sprite1.scaleX/2)%(sprite1.width * sprite1.scaleX);
+        sprite1.x = WIDTH/2 - (player.x*sprite1.scaleX/2)%(sprite1.width * sprite1.scaleX);
 
-        if(sprite1.x < window.innerWidth/2)
+        if(sprite1.x < WIDTH/2)
         {
             sprite2.x = sprite1.x + sprite1.width*sprite1.scaleX;
         }
@@ -267,12 +300,27 @@ function createDot () {
         x: Math.random() * 800,
         y: Math.random() * 600,
         graphics: this.add.graphics(),
-        person: this.add.image(0, 0, 'person'),
+        person: this.add.image(0, 0, 'portrait'+ 1),//(1+Math.floor(Math.random()*PORTRAITS_NUM))),
         //color: selectColor(Math.floor(Math.random()*113), 113),
+        personTween: null,
         color: getRandomColor(),
         transmitSize: PLAYER_SIZE,
         visited: false
     };
+
+    dot.person.setOrigin(0.5, 1);
+    dot.person.depth = 1000;
+
+    var shape = this.make.graphics();
+    shape.fillCircle(0, 0, 150);
+    dot.person.mask = new Phaser.Display.Masks.GeometryMask(this, shape);
+
+    /*this.input.on('pointermove', function (pointer) {
+
+        shape.x = pointer.x;
+        shape.y = pointer.y;
+
+    });*/
 
     dot.transmitTween = this.tweens.add({
         targets: dot,
@@ -303,11 +351,21 @@ function visitDot (dot)
         yoyo: false
     });
 
-    activeDot.visited = true;
+    dot.visited = true;
 
-    player.size *= 1.1;
+    dot.personTween.stop();
+    dot.personTween = this.tweens.add({
+        targets: dot.person,
+        duration: 300,
+        alpha: 0,
+        //delay: Math.random() * 2,
+        //ease: 'Sine.easeInOut',
+        repeat: 0,
+        yoyo: false
+    });
 
-    // TODO hide popup
+    player.size += 5;
+
 }
 
 var colors = [
