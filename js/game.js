@@ -26,6 +26,8 @@ var cursors;
 var player;
 
 var dots = [];
+var activeDot = null;
+
 var background;
 var game = new Phaser.Game(config);
 
@@ -51,7 +53,7 @@ function create ()
         size: PLAYER_SIZE
     };
 
-    player.graphics.depth = window.innerHeight/3*2;
+    player.graphics.depth = window.innerHeight/3*2 + PLAYER_SIZE;
 
     for(var i=0; i<10; i++)
     {
@@ -91,7 +93,13 @@ function create ()
 
 function update (time, delta)
 {
-    player.size -= delta / 400;
+    !activeDot && (player.size -= delta / 400);
+
+    if(player.size <= 0)
+    {
+        //TODO end game
+        player.size = 0;
+    }
 
     player.graphics.clear();
     player.graphics.fillCircle(window.innerWidth/2, window.innerHeight/3*2, player.size);
@@ -170,6 +178,35 @@ function update (time, delta)
     background.x -= player.v.x/3;
     background.y -= player.v.y/3;
 
+    if(activeDot)
+    {
+        if (Phaser.Math.Distance.Between(
+                window.innerWidth/2, window.innerHeight/3*2,
+                activeDot.graphics.x, activeDot.graphics.y
+            ) > PLAYER_SIZE*1.5)
+        {
+            visitDot.call(this, activeDot);
+            activeDot = null;
+        }
+    }
+    else
+    {
+        for (var i = 0; i < dots.length; i++)
+        {
+            var dot = dots[i];
+
+            if (!dot.visited && Phaser.Math.Distance.Between(
+                    window.innerWidth/2, window.innerHeight/3*2,
+                    dot.graphics.x, dot.graphics.y
+                ) < PLAYER_SIZE*1.5)
+            {
+                activeDot = dot;
+                // TODO show popup
+                break;
+            }
+        }
+    }
+
     /*backgrounds.forEach(function (sprites, i) {
 
         var sprite1 = sprites[0];
@@ -233,10 +270,8 @@ function createDot () {
         person: this.add.image(0, 0, 'person'),
         //color: selectColor(Math.floor(Math.random()*113), 113),
         color: getRandomColor(),
-        visit: function () {
-
-        },
-        transmitSize: PLAYER_SIZE
+        transmitSize: PLAYER_SIZE,
+        visited: false
     };
 
     dot.transmitTween = this.tweens.add({
@@ -252,6 +287,27 @@ function createDot () {
     dot.person.visible = false;
 
     return dot;
+}
+
+function visitDot (dot)
+{
+    dot.transmitTween.stop();
+    dot.transmitSize = 0;
+    this.tweens.add({
+        targets: dot,
+        duration: 200,
+        color: 0x999999,
+        //delay: Math.random() * 2,
+        //ease: 'Sine.easeInOut',
+        repeat: 0,
+        yoyo: false
+    });
+
+    activeDot.visited = true;
+
+    player.size *= 1.1;
+
+    // TODO hide popup
 }
 
 var colors = [
