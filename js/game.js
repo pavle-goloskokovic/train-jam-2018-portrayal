@@ -15,23 +15,24 @@ const PLAYER_SIZE = 20;
 const PLAYER_ACC = 0.1; //TODO adjust
 const PLAYER_V_CAP = 5;
 
-const BG = {
+/*const BG = {
     WIDTH: 512,
     HEIGHT: 512,
-    ROWS: 37
-};
+    ROWS: 24
+};*/
 
 var cursors;
 
 var player;
 
 var dots = [];
-var backgrounds = [];
+var background;
 var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.spritesheet('bg', 'assets/images/checker.png', { frameWidth: BG.WIDTH, frameHeight: BG.HEIGHT/BG.ROWS });
+    //this.load.spritesheet('bg', 'assets/images/checker.png', { frameWidth: BG.WIDTH, frameHeight: BG.HEIGHT/BG.ROWS });
+    this.load.image('bg', 'assets/images/bg.png');
     this.load.image('person', 'assets/images/acryl-bladerunner.png');
 }
 
@@ -57,19 +58,23 @@ function create ()
         dots.push(createDot.call(this));
     }
 
-    for(i=0; i<BG.ROWS; i++)
+    background = this.add.image(window.innerWidth/2, window.innerHeight/2, 'bg');
+    background.setOrigin(0.5);
+    background.setScale(3);
+
+    /*for(i=0; i<BG.ROWS; i++)
     {
-        var sprite1 = this.add.image(window.innerWidth/2, 0, 'bg', i);
+        var sprite1 = this.add.image(window.innerWidth/2, 0, 'bg', 1);
         sprite1.setOrigin(0.5, 0);
 
-        var sprite2 = this.add.image(window.innerWidth/2 + sprite1.width*sprite1.scaleX, 0, 'bg', i);
+        var sprite2 = this.add.image(window.innerWidth/2 + sprite1.width*sprite1.scaleX, 0, 'bg', 1);
         sprite2.setOrigin(0.5, 0);
 
         backgrounds.push([
             sprite1,
             sprite2
         ]);
-    }
+    }*/
 
     /*graphics = this.add.graphics();
 
@@ -154,7 +159,10 @@ function update (time, delta)
 
     });
 
-    backgrounds.forEach(function (sprites, i) {
+    background.x -= player.v.x/3;
+    background.y -= player.v.y/3;
+
+    /*backgrounds.forEach(function (sprites, i) {
 
         var sprite1 = sprites[0];
         var sprite2 = sprites[1];
@@ -192,7 +200,7 @@ function update (time, delta)
 
         sprite2.y = sprite1.y;
 
-    })
+    })*/
 
     /*graphics.clear();
     graphics.fillStyle(0x9966ff, 1);
