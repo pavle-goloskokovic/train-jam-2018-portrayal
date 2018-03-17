@@ -18,13 +18,15 @@ const PLAYER_SIZE = 20;
 const PLAYER_ACC = 0.05; //TODO adjust
 const PLAYER_V_CAP = 2;
 
-const PORTRAITS_NUM = 47;
+const PORTRAITS_NUM = 8; // 88 TODO revert
 
 /*const BG = {
     WIDTH: 512,
     HEIGHT: 512,
     ROWS: 24
 };*/
+
+var progress;
 
 var cursors;
 
@@ -33,19 +35,39 @@ var player;
 var dots = [];
 var activeDot = null;
 
+var playing = false;
+
 var background;
 var game = new Phaser.Game(config);
 
+var title;
+
 function preload ()
 {
+    var progress = this.add.graphics();
+
+    this.load.on('progress', function (value) {
+
+        progress.clear();
+        progress.fillStyle(0x00000, 1);
+        progress.fillRect(0, 299, 800 * value, 2);
+
+    });
+
+    this.load.on('complete', function () {
+
+        progress.destroy();
+
+    }, this);
+
     //this.load.spritesheet('bg', 'assets/images/checker.png', { frameWidth: BG.WIDTH, frameHeight: BG.HEIGHT/BG.ROWS });
     this.load.image('bg', 'assets/images/bg.png');
     //this.load.image('person', 'assets/images/acryl-bladerunner.png');
 
-    /*for(var i=1; i<=PORTRAITS_NUM; i++)
-    {*/
-    this.load.image('portrait' + 1, 'assets/images/ROSA/P'+'1'+'.png');
-    //}
+    for(var i=1; i<=PORTRAITS_NUM; i++)
+    {
+        this.load.image('portrait' + i, 'assets/images/Portraits/P'+i+'.png');
+    }
 
     this.load.audio('music', [
         'assets/audio/Portrait Odyssey_2.ogg',
@@ -66,6 +88,13 @@ function create ()
     background.setOrigin(0.5);
     background.setScale(3);
 
+    title = this.add.text(WIDTH/2, HEIGHT/3, 'Portrayal', {
+        fontSize: '56px',
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        color: '#000'
+    });
+    title.setOrigin(0.5);
+
     player = {
         x: 0,
         y: 0,
@@ -79,10 +108,47 @@ function create ()
 
     player.graphics.depth = HEIGHT/3*2 + PLAYER_SIZE;
 
-    for(var i=0; i<10; i++)
+    [background, title, player.graphics].forEach(function (item) {
+        item.alpha = 0;
+    });
+
+    this.tweens.add({
+        targets: [background, title, player.graphics],
+        duration: 1000,
+        alpha: 1,
+        //delay: Math.random() * 2,
+        //ease: 'Sine.easeInOut',
+        repeat: 0,
+        yoyo: false
+    });
+
+    this.input.keyboard.on('keydown', function (event)
     {
-        dots.push(createDot.call(this));
-    }
+        if (event.code === 'ArrowUp' || event.code === 'ArrowDown' ||
+            event.code === 'ArrowLeft' || event.code === 'ArrowRight')
+        {
+            console.log('input detected');
+
+            for(var i=0; i<10; i++)
+            {
+                dots.push(createDot.call(this));
+            }
+
+            this.tweens.add({
+                targets: title,
+                duration: 1000,
+                alpha: 0,
+                //delay: Math.random() * 2,
+                //ease: 'Sine.easeInOut',
+                repeat: 0,
+                yoyo: false
+            });
+
+            this.input.keyboard.removeAllListeners();
+
+            playing = true;
+        }
+    }, this);
 
     /*for(i=0; i<BG.ROWS; i++)
     {
@@ -113,12 +179,82 @@ function create ()
 
 function update (time, delta)
 {
-    !activeDot && (player.size -= delta / 600);
 
-    if(player.size <= 0)
+    !activeDot && playing && (player.size -= delta / 600);
+
+    if(playing && player.size <= 0)
     {
-        //TODO end game
+        playing = false;
         player.size = 0;
+
+        title.setText("Thank you!");
+
+        // TODO add menu transition
+
+        this.tweens.add({
+            targets: title,
+            duration: 1000,
+            alpha: 1,
+            //delay: Math.random() * 2,
+            //ease: 'Sine.easeInOut',
+            repeat: 0,
+            yoyo: false
+        });
+        this.tweens.add({
+            targets: title,
+            duration: 1000,
+            alpha: 0,
+            //delay: Math.random() * 2,
+            //ease: 'Sine.easeInOut',
+            repeat: 0,
+            yoyo: false,
+            delay: 4000
+        });
+        this.tweens.add({
+            targets: title,
+            duration: 1000,
+            alpha: 1,
+            //delay: Math.random() * 2,
+            //ease: 'Sine.easeInOut',
+            repeat: 0,
+            yoyo: false,
+            delay: 6000,
+            onStart: function () {
+                title.setText('Portrayal');
+            },
+            onComplete: function () {
+                player.size = PLAYER_SIZE;
+                this.input.keyboard.on('keydown', function (event)
+                {
+                    if (event.code === 'ArrowUp' || event.code === 'ArrowDown' ||
+                        event.code === 'ArrowLeft' || event.code === 'ArrowRight')
+                    {
+                        console.log('input detected');
+
+                        for(var i=0; i<10; i++)
+                        {
+                            dots.push(createDot.call(this));
+                        }
+
+                        this.tweens.add({
+                            targets: title,
+                            duration: 1000,
+                            alpha: 0,
+                            //delay: Math.random() * 2,
+                            //ease: 'Sine.easeInOut',
+                            repeat: 0,
+                            yoyo: false
+                        });
+
+                        this.input.keyboard.removeAllListeners();
+
+                        playing = true;
+                    }
+                }, this);
+            }.bind(this)
+        });
+
+        return;
     }
 
     player.graphics.clear();
@@ -126,45 +262,37 @@ function update (time, delta)
 
     // Controls
 
-    if (cursors.left.isDown)
-    {
+    if (playing && cursors.left.isDown) {
         player.v.x -= PLAYER_ACC;
         player.v.x = Math.max(-PLAYER_V_CAP, player.v.x);
     }
-    else if (player.v.x < 0)
-    {
-        player.v.x += 1.5*PLAYER_ACC;
+    else if (player.v.x < 0) {
+        player.v.x += 1.5 * PLAYER_ACC;
         player.v.x = Math.min(player.v.x, 0);
     }
-    else if (cursors.right.isDown)
-    {
+    else if (playing && cursors.right.isDown) {
         player.v.x += PLAYER_ACC;
         player.v.x = Math.min(player.v.x, PLAYER_V_CAP);
     }
-    else
-    {
-        player.v.x -= 1.5*PLAYER_ACC;
+    else {
+        player.v.x -= 1.5 * PLAYER_ACC;
         player.v.x = Math.max(0, player.v.x);
     }
 
-    if (cursors.down.isDown)
-    {
+    if (playing && cursors.down.isDown) {
         player.v.y += PLAYER_ACC;
         player.v.y = Math.min(player.v.y, PLAYER_V_CAP);
     }
-    else if (player.v.y > 0)
-    {
-        player.v.y -= 1.5*PLAYER_ACC;
+    else if (player.v.y > 0) {
+        player.v.y -= 1.5 * PLAYER_ACC;
         player.v.y = Math.max(0, player.v.y);
     }
-    else if (cursors.up.isDown)
-    {
+    else if (playing && cursors.up.isDown) {
         player.v.y -= PLAYER_ACC;
         player.v.y = Math.max(-PLAYER_V_CAP, player.v.y);
     }
-    else
-    {
-        player.v.y += 1.5*PLAYER_ACC;
+    else {
+        player.v.y += 1.5 * PLAYER_ACC;
         player.v.y = Math.min(player.v.y, 0);
     }
 
@@ -310,7 +438,7 @@ function createDot () {
         x: Math.random() * 800,
         y: Math.random() * 600,
         graphics: this.add.graphics(),
-        person: this.add.image(0, 0, 'portrait'+ 1),//(1+Math.floor(Math.random()*PORTRAITS_NUM))),
+        person: this.add.image(0, 0, 'portrait'+(1+Math.floor(Math.random()*PORTRAITS_NUM))),
         //color: selectColor(Math.floor(Math.random()*113), 113),
         personTween: null,
         color: getRandomColor(),
