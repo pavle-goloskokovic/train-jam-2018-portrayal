@@ -1,6 +1,9 @@
 const WIDTH = 800;
 const HEIGHT = 600;
 
+window.onload = function () { window.focus(); };
+window.onclick = function () { window.focus(); };
+
 var config = {
     width: WIDTH,
     height: HEIGHT,
@@ -18,7 +21,7 @@ const PLAYER_SIZE = 20;
 const PLAYER_ACC = 0.05; //TODO adjust
 const PLAYER_V_CAP = 2;
 
-const PORTRAITS_NUM = 88;
+const PORTRAITS_NUM = 102;
 
 /*const BG = {
     WIDTH: 512,
